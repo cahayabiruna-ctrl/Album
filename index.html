@@ -47,12 +47,29 @@
             height: 100%;
             object-fit: contain; /* Memastikan seluruh gambar terlihat */
         }
+        .title-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            z-index: 10;
+            pointer-events: none; /* Membuat teks tidak bisa di-klik */
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7); /* Bayangan agar teks mudah dibaca */
+        }
     </style>
 </head>
 <body class="bg-black">
 
     <div id="book-container" class="book-container">
         <div id="book" class="book"></div>
+        
+        <!-- Judul yang melayang di atas gambar -->
+        <div class="title-overlay">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Buku Digital Anda</h1>
+        </div>
     </div>
 
     <script>
