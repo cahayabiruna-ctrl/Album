@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Digital (Final & Benar)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .book-container {
+            width: 100%;
+            max-width: 600px;
+            perspective: 2000px;
+        }
+        .book {
+            width: 100%;
+            aspect-ratio: 9 / 14;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: left center;
+            transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+            transform-style: preserve-3d;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        .page-front, .page-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .page-back { transform: rotateY(180deg); }
+        .page img { width: 100%; height: 100%; object-fit: cover; }
+        .page.flipped { transform: rotateY(-180deg); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-4 sm:p-6">
+
+    <main class="w-full max-w-4xl flex flex-col items-center space-y-8">
+        <div class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Koleksi Digital Anda</h1>
+            <p class="text-gray-400 mt-2">Balik halaman untuk melihat gambar berikutnya.</p>
+        </div>
+
+        <div class="book-container">
+            <div id="book" class="book"></div>
+        </div>
+
+        <div class="flex items-center justify-center space-x-4 mt-6">
+            <button id="prev-btn" class="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                Sebelumnya
+            </button>
+            <div id="page-counter" class="text-lg font-medium text-gray-300 w-24 text-center">
+                Halaman 0 / 10
+            </div>
+            <button id="next-btn" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-md transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                Berikutnya
+            </button>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const book = document.getElementById('book');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const pageCounter = document.getElementById('page-counter');
+            
+            // NAMA FILE INI 100% DIAMBIL DARI UPLOAD TERAKHIR ANDA. TIDAK ADA YANG DIUBAH.
+            const images = [
+                '1000167342.jpg',
+                '1000167341.jpg',
+                '1000167340.jpg',
+                '1000167339.jpg',
+                '1000167338.jpg',
+                '1000167334.jpg',
+                '1000167337.jpg',
+                '1000167336.jpg',
+                '1000167335.jpg',
+                '1000167324.jpg'
+            ];
+
+            let currentPage = 0;
+            const totalPages = images.length;
+            let pages = [];
+
+            function initializeBook() {
+                book.innerHTML = '';
+                pages = [];
+                for (let i = 0; i < totalPages; i++) {
+                    const page = document.createElement('div');
+                    page.classList.add('page');
+                    page.style.zIndex = totalPages - i;
+                    
+                    const pageFront = document.createElement('div');
+                    pageFront.classList.add('page-front');
+                    const imgFront = document.createElement('img');
+                    imgFront.src = images[i];
+                    imgFront.alt = `Halaman ${i + 1}`;
+                    imgFront.onerror = () => { imgFront.src = 'https://placehold.co/600x933/1f2937/ffffff?text=Gagal+Muat+Gambar' };
+                    pageFront.appendChild(imgFront);
+
+                    const pageBack = document.createElement('div');
+                    pageBack.classList.add('page-back');
+                    
+                    if (images[i + 1]) {
+                        const imgBack = document.createElement('img');
+                        imgBack.src = images[i + 1];
+                        imgBack.alt = `Halaman ${i + 2} (Belakang)`;
+                        imgBack.onerror = () => { imgBack.src = 'https://placehold.co/600x933/1f2937/ffffff?text=Gagal+Muat+Gambar' };
+                        pageBack.appendChild(imgBack);
+                    } else {
+                        pageBack.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-800 text-center p-4"><h2 class="text-2xl font-bold">Akhir dari Koleksi</h2></div>`;
+                    }
+                    
+                    page.appendChild(pageFront);
+                    page.appendChild(pageBack);
+                    book.appendChild(page);
+                    pages.push(page);
+                }
+                updateUI();
+            }
+
+            function updateUI() {
+                pageCounter.textContent = `Halaman ${currentPage} / ${totalPages}`;
+                prevBtn.disabled = currentPage === 0;
+                nextBtn.disabled = currentPage === totalPages;
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    const pageToFlip = pages[currentPage];
+                    pageToFlip.classList.add('flipped');
+                    pageToFlip.style.zIndex = currentPage + 10;
+                    currentPage++;
+                    updateUI();
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    const pageToUnflip = pages[currentPage];
+                    pageToUnflip.classList.remove('flipped');
+                    setTimeout(() => {
+                        pageToUnflip.style.zIndex = totalPages - currentPage;
+                    }, 600);
+                    updateUI();
+                }
+            });
+
+            initializeBook();
+        });
+    </script>
+</body>
+</html>
+
