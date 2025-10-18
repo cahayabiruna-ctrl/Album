@@ -1,6 +1,6 @@
 {
-  "name": "Buku Digital Anda",
-  "short_name": "BukuDigital",
+  "name": "Album",
+  "short_name": "AlbumDigital",
   "start_url": ".",
   "display": "fullscreen",
   "background_color": "#111827",
